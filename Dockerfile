@@ -1,6 +1,5 @@
 FROM node:20-slim
 
-# Dependencias del sistema que Playwright/Chromium necesita
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
     libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
@@ -13,6 +12,7 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install
 
+ENV PLAYWRIGHT_BROWSERS_PATH=/app/pw-browsers
 RUN npx playwright install chromium
 
 COPY . .
