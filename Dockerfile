@@ -15,6 +15,10 @@ RUN npm install
 ENV PLAYWRIGHT_BROWSERS_PATH=/app/pw-browsers
 RUN npx playwright install chromium
 
+# Localizar el ejecutable y guardarlo como variable de entorno
+RUN CHROMIUM_PATH=$(find /app/pw-browsers -name "chrome" -o -name "chromium" -o -name "chrome-headless-shell" | head -1) && \
+    echo "RUTA_CHROMIUM=$CHROMIUM_PATH" >> /app/.chromium-path
+
 COPY . .
 
 RUN mkdir -p salidas solicitudes
@@ -22,4 +26,4 @@ RUN mkdir -p salidas solicitudes
 ENV PORT=3000
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD export $(cat /app/.chromium-path) && node server.js
