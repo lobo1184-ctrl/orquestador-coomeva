@@ -1,0 +1,171 @@
+openapi: 3.1.0
+info:
+  title: Consola de diseño · orquestador
+  version: "1.0"
+  description: >
+    Produce piezas gráficas de marca a partir de una solicitud estructurada.
+    Flujo: consultar catálogo → (opcional) buscar fotos → crear solicitud (devuelve id) → consultar estado hasta que esté lista.
+servers:
+  - url: https://TU-DOMINIO
+paths:
+  /catalogo:
+    get:
+      operationId: consultarCatalogo
+      summary: Empresas, plantillas, campos de texto y formatos disponibles.
+      responses:
+        "200":
+          description: Catálogo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    empresa: { type: string }
+                    fotos_en_banco: { type: integer }
+                    plantillas:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          clave: { type: string }
+                          nombre: { type: string }
+                          tiene_imagen: { type: boolean }
+                          campos:
+                            type: array
+                            items: { type: object, properties: { clave: { type: string }, nombre: { type: string } } }
+                          formatos:
+                            type: array
+                            items: { type: object, properties: { id: { type: string }, nombre: { type: string }, ancho: { type: integer }, alto: { type: integer } } }
+  /banco/{empresa}:
+    get:
+      operationId: buscarFotos
+      summary: Busca fotografías en el banco de una empresa por descripción.
+      parameters:
+        - { name: empresa, in: path, required: true, schema: { type: string } }
+        - { name: q, in: query, required: true, schema: { type: string }, description: Descripción visual en español }
+        - { name: n, in: query, required: false, schema: { type: integer, default: 6 } }
+      responses:
+        "200":
+          description: Candidatas ordenadas por similitud
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metodo: { type: string }
+                  umbral: { type: number }
+                  candidatas:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        puntaje: { type: number }
+                        descripcion: { type: string }
+                        origen: { type: string }
+                        url: { type: string }
+  /solicitudes:
+    post:
+      operationId: crearSolicitud
+      summary: Envía la solicitud a producción. Responde de inmediato con un id; la pieza se produce en segundo plano.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Solicitud"
+      responses:
+        "202":
+          description: Aceptada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  estado: { type: string }
+                  consultar: { type: string }
+                  mensaje: { type: string }
+        "400":
+          description: Solicitud inválida (ver detalles)
+  /solicitudes/{id}:
+    get:
+      operationId: consultarSolicitud
+      summary: Estado de una solicitud; cuando está lista incluye URLs de las piezas y el control de calidad.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Estado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  estado: { type: string, enum: [en_cola, procesando, lista, error] }
+                  resumen: { type: string }
+                  error: { type: string }
+                  ultimo_evento: { type: string }
+                  piezas:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        formato: { type: string }
+                        nombre: { type: string }
+                        ancho: { type: integer }
+                        alto: { type: integer }
+                        url: { type: string }
+                  control_calidad:
+                    type: array
+                    items: { type: string }
+                  imagen:
+                    type: object
+                    properties:
+                      origen: { type: string }
+                      activo: { type: string }
+                      puntaje: { type: number }
+                      aviso: { type: string }
+components:
+  schemas:
+    Solicitud:
+      type: object
+      required: [empresa, plantilla, contenido]
+      properties:
+        empresa: { type: string, description: Clave de empresa del catálogo }
+        plantilla: { type: string, description: Clave de plantilla del catálogo }
+        formatos:
+          type: array
+          items: { type: string }
+          description: Ids de formato a producir; vacío = todos
+        contenido:
+          type: object
+          description: Texto por campo (claves del catálogo)
+          additionalProperties: { type: string }
+        por_formato:
+          type: object
+          description: Textos que aplican solo a un formato
+          additionalProperties:
+            type: object
+            additionalProperties: { type: string }
+        imagen:
+          type: object
+          properties:
+            descripcion: { type: string }
+            politica: { type: string, enum: [solo_banco, banco_luego_generar, solo_generar, ninguna] }
+            asset_id: { type: string }
+            evitar: { type: string }
+        salida:
+          type: object
+          properties:
+            formato: { type: string, enum: [png, jpg] }
+            escala: { type: number }
+        solicitante:
+          type: object
+          properties:
+            nombre: { type: string }
+            correo: { type: string }
+        notas: { type: string }

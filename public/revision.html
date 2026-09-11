@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bandeja de revisión</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#16191d;--ink2:#5b616a;--ink3:#8a9099;--paper:#fff;--field:#f6f7f8;--line:#d9dce0;--line2:#eceef0;
+      --shell:#e4e6e9;--accent:#2f6f62;--accent2:#265a50;--accent-soft:#e3efeb;--alert:#b23b32;--warn:#b5741d}
+*{box-sizing:border-box}
+body{margin:0;font:13.5px/1.5 Inter,system-ui,sans-serif;color:var(--ink);background:var(--shell)}
+header{background:var(--paper);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:12px}
+header h1{font-size:14px;font-weight:600;margin:0}
+header input{margin-left:auto;border:1px solid var(--line);border-radius:6px;padding:6px 9px;font:inherit;width:240px}
+header a{font-size:12.5px;color:var(--accent2)}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.sol{background:var(--paper);border:1px solid var(--line);border-radius:10px;margin-bottom:14px;overflow:hidden}
+.sol>summary{padding:11px 16px;cursor:pointer;display:flex;gap:14px;align-items:center;list-style:none}
+.sol>summary::-webkit-details-marker{display:none}
+.sol>summary:hover{background:var(--field)}
+.estado{font-size:11px;padding:2px 8px;border-radius:9px;background:var(--field);color:var(--ink2);flex:none}
+.estado.lista{background:var(--accent-soft);color:var(--accent2)} .estado.error{background:#fbf1f0;color:var(--alert)} .estado.procesando,.estado.en_cola{background:#fdf5e9;color:var(--warn)}
+.sol>summary b{font-weight:500}
+.sol>summary .meta{color:var(--ink3);font-size:12px;margin-left:auto;white-space:nowrap}
+.cuerpo{padding:0 16px 16px;display:grid;grid-template-columns:1fr 300px;gap:18px}
+.tira{display:flex;gap:10px;flex-wrap:wrap}
+.tira figure{margin:0;width:180px}
+.tira a{display:block;background:repeating-conic-gradient(#f0f1f2 0 25%,#fff 0 50%) 0 0/16px 16px;border:1px solid var(--line2);border-radius:6px;overflow:hidden}
+.tira img{display:block;width:100%;height:135px;object-fit:contain}
+.tira figcaption{font-size:11.5px;color:var(--ink2);margin-top:4px}
+h4{margin:14px 0 6px;font-size:12px;font-weight:600;color:var(--ink2)}
+ul.qa{margin:0;padding:0;list-style:none;font-size:12px}
+ul.qa li{padding-left:14px;position:relative;color:var(--ink2);margin-bottom:3px}
+ul.qa li:before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--ink3)}
+ul.qa li.err:before{background:var(--alert)} ul.qa li.warn:before{background:var(--warn)} ul.qa li.ok:before{background:var(--accent)}
+.lado{font-size:12.5px}
+.lado dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px}
+.lado dt{color:var(--ink3)} .lado dd{margin:0;word-break:break-word}
+.foto{margin-top:10px;border:1px solid var(--line2);border-radius:6px;padding:8px}
+.foto img{width:100%;height:120px;object-fit:cover;border-radius:4px;display:block;margin-bottom:6px}
+.foto .btns{display:flex;gap:6px;margin-top:6px}
+.foto button{flex:1;border:1px solid var(--line);border-radius:5px;background:var(--paper);padding:5px;font:inherit;font-size:12px;cursor:pointer}
+.foto button.ok{border-color:var(--accent);color:var(--accent2)} .foto button.no{border-color:#e6cac7;color:var(--alert)}
+.foto .aviso{color:var(--warn)}
+pre{font-size:11px;background:var(--field);padding:8px;border-radius:5px;overflow:auto;max-height:200px;margin:6px 0 0}
+.vacio{text-align:center;color:var(--ink2);padding:60px 20px}
+@media (max-width:760px){.cuerpo{grid-template-columns:1fr}}
+.subir{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 20px;background:#fff;border-bottom:1px solid var(--line);font-size:13px}
+.subir select,.subir input[type=text]{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit}
+.subir input[type=text]{flex:1;min-width:220px}
+.subir button{border:0;border-radius:8px;background:var(--accent);color:#fff;padding:6px 14px;font:inherit;cursor:pointer}
+.subir button:disabled{opacity:.5;cursor:not-allowed}
+</style>
+</head>
+<body>
+<header>
+  <h1>Bandeja de revisión</h1>
+  <a href="/">Pedir una pieza</a>
+  <input id="key" type="password" placeholder="Clave del orquestador (X-API-Key)">
+</header>
+<section class="subir" id="subir">
+  <b>Subir fotos al banco</b>
+  <select id="sub-empresa"></select>
+  <input id="sub-archivos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+  <input id="sub-desc" type="text" placeholder="Descripción (opcional, se aplica a todas): qué se ve, dónde, luz, emoción">
+  <button id="sub-btn" type="button">Subir</button>
+  <span id="sub-estado"></span>
+</section>
+<main id="main"><div class="vacio">Cargando…</div></main>
+<script>
+const key = () => document.getElementById("key").value || localStorage.getItem("orq_key") || "";
+document.getElementById("key").value = localStorage.getItem("orq_key") || "";
+document.getElementById("key").onchange = e => { localStorage.setItem("orq_key", e.target.value); cargar(); };
+const esc = s => String(s ?? "").replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const h = () => ({ "X-API-Key": key() });
+
+async function cargar(){
+  const main = document.getElementById("main");
+  const r = await fetch("/solicitudes?n=60", { headers: h() });
+  if(r.status === 401){ main.innerHTML = '<div class="vacio">Escribe la clave del orquestador arriba a la derecha.</div>'; return; }
+  const lista = await r.json();
+  if(!lista.length){ main.innerHTML = '<div class="vacio">Todavía no hay solicitudes. Pide la primera desde el cerebro.</div>'; return; }
+  const pendientes = await pendientesBanco();
+  main.innerHTML = pendientes + lista.map(s => `
+    <details class="sol" ${s.estado !== "lista" ? "open" : ""}>
+      <summary><span class="estado ${s.estado}">${s.estado.replace("_"," ")}</span><b>${esc(s.empresa)} · ${esc(s.plantilla)}</b>
+        <span>${esc(s.resumen || s.ultimo_evento || s.error || "")}</span><span class="meta">${new Date(s.creado).toLocaleString("es-CO")} · ${s.id}</span></summary>
+      <div class="cuerpo">
+        <div>
+          <div class="tira">${(s.piezas || []).map(p => `<figure><a href="${p.url}" target="_blank"><img src="${p.url}" loading="lazy" alt=""></a><figcaption>${esc(p.nombre)} · ${p.ancho}×${p.alto}</figcaption></figure>`).join("") || "<span style='color:var(--ink3)'>Sin piezas aún.</span>"}</div>
+          ${s.control_calidad?.length ? `<h4>Control de calidad</h4><ul class="qa">${s.control_calidad.map(q => { const [l, ...r] = q.split(": "); return `<li class="${esc(l)}">${esc(r.join(": "))}</li>`; }).join("")}</ul>` : ""}
+        </div>
+        <div class="lado">
+          <dl><dt>Estado</dt><dd>${esc(s.ultimo_evento || s.estado)}</dd>${s.error ? `<dt>Error</dt><dd>${esc(s.error)}</dd>` : ""}</dl>
+          ${s.imagen ? `<div class="foto">
+            ${s.imagen.activo ? `<img src="/banco/${esc(s.empresa)}/archivo/${esc(s.imagen.activo)}" alt="">` : ""}
+            <div>Fotografía: <b>${esc(s.imagen.origen)}</b>${s.imagen.puntaje != null ? ` · similitud ${s.imagen.puntaje}` : ""}</div>
+            ${s.imagen.aviso ? `<div class="aviso">${esc(s.imagen.aviso)}</div>` : ""}
+            ${s.imagen.origen === "generada" ? `<div class="btns"><button class="ok" onclick="uso('${esc(s.empresa)}','${esc(s.imagen.activo)}','aprobado',this)">Aprobar y guardar en el banco</button><button class="no" onclick="uso('${esc(s.empresa)}','${esc(s.imagen.activo)}','bloqueado',this)">Bloquear</button></div>
+            <details><summary style="font-size:11px;color:var(--ink3);cursor:pointer;margin-top:6px">Ver prompt usado</summary><pre>${esc(s.imagen.prompt)}</pre></details>` : ""}
+          </div>` : ""}
+        </div>
+      </div>
+    </details>`).join("");
+}
+/* Fotos subidas o generadas que esperan aprobación, por empresa */
+async function pendientesBanco(){
+  const r = await fetch("/catalogo", { headers: h() }); if(!r.ok) return "";
+  let html = "";
+  for(const e of await r.json()){
+    const rb = await fetch(`/banco/${e.empresa}?pendientes=1`, { headers: h() }); if(!rb.ok) continue;
+    const j = await rb.json(); const p = (j.activos || []).filter(a => a.uso === "pendiente");
+    if(!p.length) continue;
+    html += `<details class="sol" open><summary><b>Fotos pendientes de aprobación · ${esc(e.empresa)}</b><span>${p.length}</span></summary><div class="cuerpo"><div class="tira">` +
+      p.map(a => `<figure><img src="${a.url}" loading="lazy" alt=""><figcaption>${esc(a.origen)} · ${esc(a.descripcion || "")}<div class="btns"><button class="ok" onclick="uso('${esc(e.empresa)}','${esc(a.id)}','aprobado',this)">Aprobar</button><button class="no" onclick="uso('${esc(e.empresa)}','${esc(a.id)}','bloqueado',this)">Bloquear</button></div></figcaption></figure>`).join("") +
+      `</div></div></details>`;
+  }
+  return html;
+}
+/* --- subir fotos al banco de una empresa --- */
+async function cargarEmpresas(){
+  const r = await fetch("/catalogo", { headers: h() }); if(!r.ok) return;
+  const sel = document.getElementById("sub-empresa");
+  sel.innerHTML = (await r.json()).map(e => `<option value="${esc(e.empresa)}">${esc(e.empresa)}</option>`).join("");
+}
+document.getElementById("sub-btn").onclick = async () => {
+  const empresa = document.getElementById("sub-empresa").value, archivos = [...document.getElementById("sub-archivos").files];
+  const desc = document.getElementById("sub-desc").value.trim(), est = document.getElementById("sub-estado"), btn = document.getElementById("sub-btn");
+  if(!empresa || !archivos.length){ est.textContent = "Elige la empresa y al menos una foto."; return; }
+  btn.disabled = true; let ok = 0;
+  for(const f of archivos){
+    est.textContent = `Subiendo ${f.name}…`;
+    const b64 = await new Promise(res => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.readAsDataURL(f); });
+    const r = await fetch("/subidas", { method: "POST", headers: { ...h(), "Content-Type": "application/json" }, body: JSON.stringify({ empresa, nombre: f.name, base64: b64, descripcion: desc }) });
+    if(r.ok) ok++; else est.textContent = "Error con " + f.name + ": " + ((await r.json()).error || r.status);
+  }
+  est.textContent = `${ok} foto(s) en el banco de ${empresa}, pendientes de aprobación. Apruébalas abajo o con "node ingestar.js ${empresa}" para describirlas y vectorizarlas.`;
+  document.getElementById("sub-archivos").value = ""; btn.disabled = false;
+  cargar();
+};
+cargarEmpresas();
+
+async function uso(empresa, id, uso, btn){
+  const r = await fetch(`/banco/${empresa}/${id}/uso`, { method: "POST", headers: { ...h(), "Content-Type": "application/json" }, body: JSON.stringify({ uso }) });
+  btn.textContent = r.ok ? (uso === "aprobado" ? "Aprobada" : "Bloqueada") : "No se pudo";
+}
+cargar(); setInterval(cargar, 6000);
+</script>
+</body>
+</html>

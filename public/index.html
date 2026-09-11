@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pedir una pieza</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#16191d;--ink2:#5b616a;--ink3:#8a9099;--paper:#fff;--field:#f6f7f8;--line:#d9dce0;--line2:#eceef0;
+      --shell:#e4e6e9;--accent:#2f6f62;--accent2:#265a50;--accent-soft:#e3efeb;--alert:#b23b32;--warn:#b5741d}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font:14px/1.5 Inter,system-ui,sans-serif;color:var(--ink);background:var(--shell);display:flex;flex-direction:column;height:100vh}
+header{background:var(--paper);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:12px}
+header .mark{width:28px;height:28px;border-radius:7px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:600;font-size:12px}
+header h1{font-size:14px;font-weight:600;margin:0}
+header p{margin:0;font-size:12px;color:var(--ink3)}
+header a{margin-left:auto;font-size:12.5px;color:var(--accent2)}
+main{flex:1;overflow:auto;padding:22px 0}
+.hilo{max-width:760px;margin:0 auto;padding:0 20px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:88%;padding:11px 14px;border-radius:12px;white-space:pre-wrap;word-wrap:break-word}
+.msg.yo{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.msg.el{align-self:flex-start;background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.el a{color:var(--accent2)}
+.msg.sys{align-self:center;background:none;color:var(--ink3);font-size:12px;padding:2px}
+.msg.pensando{color:var(--ink3);font-style:italic}
+/* hoja de contactos: el resultado es el protagonista */
+.hoja{align-self:stretch;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.hoja h3{margin:0 0 10px;font-size:13px;font-weight:600}
+.hoja .tira{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}
+.hoja figure{margin:0;flex:none;width:200px}
+.hoja figure a{display:block;background:repeating-conic-gradient(#f0f1f2 0 25%,#fff 0 50%) 0 0/16px 16px;border:1px solid var(--line2);border-radius:6px;overflow:hidden}
+.hoja img{display:block;width:100%;height:150px;object-fit:contain}
+.hoja figcaption{font-size:11.5px;color:var(--ink2);margin-top:5px;line-height:1.4}
+.hoja figcaption b{display:block;color:var(--ink);font-weight:500}
+.hoja ul{margin:10px 0 0;padding:0;list-style:none;font-size:12px}
+.hoja li{padding-left:14px;position:relative;color:var(--ink2);margin-bottom:3px}
+.hoja li:before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--ink3)}
+.hoja li.err:before{background:var(--alert)} .hoja li.warn:before{background:var(--warn)} .hoja li.ok:before{background:var(--accent)}
+.hoja .origen{font-size:12px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px solid var(--line2)}
+.hoja .origen.generada{color:var(--warn)}
+form{background:var(--paper);border-top:1px solid var(--line);padding:12px 20px}
+form .caja{max-width:760px;margin:0 auto;display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;min-height:44px;max-height:160px}
+textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+button{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:0 16px;height:44px;font:inherit;font-weight:500;cursor:pointer}
+button:hover{background:var(--accent2)} button:disabled{background:#9db8b1;cursor:not-allowed}
+.clip{background:#fff;color:var(--accent);border:1px solid var(--line);width:44px;padding:0;font-size:20px;line-height:1}
+.clip:hover{background:#f1f5f4}
+.adjunto{max-width:760px;margin:0 auto 8px;display:none;align-items:center;gap:10px;font-size:13px;color:#444}
+.adjunto img{height:48px;width:48px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.adjunto button{height:28px;padding:0 10px;font-size:12px;background:#eee;color:#333}
+.msg.yo img.mini{display:block;max-width:220px;border-radius:8px;margin-top:6px}
+.vacio{align-self:center;text-align:center;color:var(--ink2);max-width:440px;margin-top:8vh}
+.vacio p{margin:6px 0}
+.vacio .ej{display:inline-block;margin:4px 3px;padding:6px 10px;border:1px solid var(--line);border-radius:16px;background:var(--paper);font-size:12.5px;cursor:pointer}
+.vacio .ej:hover{border-color:var(--accent);color:var(--accent2)}
+@media (prefers-reduced-motion:no-preference){.msg{animation:in .16s ease-out}@keyframes in{from{opacity:0;transform:translateY(4px)}}}
+</style>
+</head>
+<body>
+<header>
+  <div class="mark">MR</div>
+  <div><h1>Pedir una pieza</h1><p>Cuéntame qué necesitas; yo la produzco con la plantilla de la marca.</p></div>
+  <a href="/revision">Bandeja de revisión</a>
+</header>
+<main><div class="hilo" id="hilo">
+  <div class="vacio" id="vacio">
+    <p>Describe la pieza como se la explicarías a un compañero: para qué es, qué se ofrece, hasta cuándo y qué debería verse en la foto. Si ya tienes la foto, adjúntala con el clip; si no, la busco en el banco de la marca o la genero.</p>
+    <p>
+      <span class="ej">Post para redes: 20% en el plan familiar hasta el 30 de septiembre</span>
+      <span class="ej">Historia para invitar al torneo de natación del sábado</span>
+      <span class="ej">Banner web con aviso de cambio de horario</span>
+    </p>
+  </div>
+</div></main>
+<form id="form">
+  <div class="adjunto" id="adjunto"><img id="adj-img" alt=""><span id="adj-nombre"></span><button type="button" id="adj-quitar">Quitar</button></div>
+  <div class="caja">
+    <button type="button" class="clip" id="clip" title="Adjuntar una foto para la pieza">📎</button>
+    <input type="file" id="archivo" accept="image/jpeg,image/png,image/webp" hidden>
+    <textarea id="txt" placeholder="Escribe aquí… (Enter envía, Mayús+Enter salta línea)" rows="1"></textarea>
+    <button id="btn" type="submit">Enviar</button>
+  </div>
+</form>
+<script>
+const sesion = "s" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+const hilo = document.getElementById("hilo"), txt = document.getElementById("txt"), btn = document.getElementById("btn");
+const vigilando = new Set();
+
+function nodo(cls, html){ const d = document.createElement("div"); d.className = "msg " + cls; if(html !== undefined) d.innerHTML = html; hilo.appendChild(d); d.scrollIntoView({block:"end"}); return d; }
+const esc = s => String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function conEnlaces(s){ return esc(s).replace(/(https?:\/\/[^\s)]+)/g, u => /\.(png|jpe?g|webp)(\?|$)/i.test(u) ? `<a href="${u}" target="_blank">${u.split("/").pop()}</a>` : `<a href="${u}" target="_blank">${u}</a>`); }
+
+/* ---- foto adjunta ---- */
+let adjunto = null;   // { archivo:File, dataUrl }
+const clip = document.getElementById("clip"), inArchivo = document.getElementById("archivo"), cajaAdj = document.getElementById("adjunto");
+clip.onclick = () => inArchivo.click();
+inArchivo.onchange = () => { const f = inArchivo.files[0]; if(f) tomarArchivo(f); inArchivo.value = ""; };
+document.getElementById("adj-quitar").onclick = quitarAdjunto;
+function tomarArchivo(f){
+  if(!/^image\/(jpeg|png|webp)$/.test(f.type)){ alert("Usa una foto JPG, PNG o WEBP."); return; }
+  if(f.size > 12 * 1024 * 1024){ alert("La foto pesa más de 12 MB. Redúcela antes de adjuntarla."); return; }
+  const rd = new FileReader();
+  rd.onload = () => { adjunto = { archivo: f, dataUrl: rd.result }; document.getElementById("adj-img").src = rd.result; document.getElementById("adj-nombre").textContent = f.name; cajaAdj.style.display = "flex"; txt.focus(); };
+  rd.readAsDataURL(f);
+}
+function quitarAdjunto(){ adjunto = null; cajaAdj.style.display = "none"; }
+/* pegar o arrastrar una imagen también sirve */
+txt.addEventListener("paste", e => { const it = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith("image/")); if(it){ e.preventDefault(); tomarArchivo(it.getAsFile()); } });
+document.addEventListener("dragover", e => e.preventDefault());
+document.addEventListener("drop", e => { e.preventDefault(); const f = e.dataTransfer?.files?.[0]; if(f) tomarArchivo(f); });
+
+async function subirAdjunto(){
+  const r = await fetch("/subidas", { method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ nombre: adjunto.archivo.name, base64: adjunto.dataUrl }) });
+  const j = await r.json();
+  if(!r.ok) throw new Error(j.error || "No se pudo subir la foto");
+  return j;
+}
+
+async function enviar(m){
+  document.getElementById("vacio")?.remove();
+  const conFoto = !!adjunto;
+  const burbuja = nodo("yo", esc(m || "(foto adjunta)"));
+  if(conFoto){ const im = document.createElement("img"); im.className = "mini"; im.src = adjunto.dataUrl; burbuja.appendChild(im); }
+  btn.disabled = true; txt.value = ""; txt.style.height = "";
+  const p = nodo("el pensando", conFoto ? "Subiendo la foto…" : "Pensando…");
+  try{
+    let mensaje = m;
+    if(conFoto){
+      const sub = await subirAdjunto();
+      quitarAdjunto();
+      mensaje = (m ? m + "\n\n" : "") + `[La persona adjuntó una foto para la pieza: asset_id "${sub.id}" (archivo ${sub.descripcion}). Úsala como fotografía: en la solicitud pon imagen.asset_id = "${sub.id}". No hace falta describir otra foto ni buscar en el banco.]`;
+      p.textContent = "Pensando…";
+    }
+    const r = await fetch("/cerebro/mensaje", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ sesion, mensaje }) });
+    const j = await r.json();
+    p.className = "msg el"; p.innerHTML = conEnlaces(j.texto || j.error || "");
+    (j.herramientas || []).forEach(h => {
+      if(h.nombre === "crear_solicitud" && h.resultado?.id) vigilar(h.resultado.id);
+      if(h.nombre === "consultar_solicitud" && h.resultado?.estado === "lista") mostrarHoja(h.resultado);
+    });
+  }catch(e){ p.className = "msg el"; p.textContent = "No pude hablar con el servidor: " + e.message; }
+  btn.disabled = false; txt.focus();
+}
+
+/* El navegador vigila la solicitud y muestra la hoja de contactos en cuanto esté lista,
+   aunque la persona no vuelva a escribir. */
+async function vigilar(id){
+  if(vigilando.has(id)) return; vigilando.add(id);
+  const s = nodo("sys", "Produciendo " + id + "…");
+  for(let i = 0; i < 120; i++){
+    await new Promise(r => setTimeout(r, 2500));
+    const j = await (await fetch("/solicitudes/" + id)).json().catch(() => null);
+    if(!j) continue;
+    s.textContent = (j.ultimo_evento || j.estado) + " · " + id;
+    if(j.estado === "lista"){ s.remove(); mostrarHoja(j); return; }
+    if(j.estado === "error"){ s.textContent = "Error: " + j.error; return; }
+  }
+  s.textContent = "La producción está tardando más de lo normal. Pregúntame por " + id + " en un momento.";
+}
+
+const hojas = new Set();
+function mostrarHoja(j){
+  if(hojas.has(j.id)) return; hojas.add(j.id);
+  const d = document.createElement("div"); d.className = "msg hoja";
+  const qa = (j.control_calidad || []).map(q => { const [lvl, ...rest] = q.split(": "); return `<li class="${esc(lvl)}">${esc(rest.join(": "))}</li>`; }).join("");
+  const im = j.imagen ? `<div class="origen ${j.imagen.origen === "generada" ? "generada" : ""}">Fotografía: ${
+      j.imagen.origen === "banco" ? "del banco de la marca" : j.imagen.origen === "subida" ? "la foto que adjuntaste" :
+      j.imagen.origen === "banco_sin_coincidencia" ? "del banco, sin relación con la descripción — cambiarla en revisión" : j.imagen.origen === "generada" ? "generada con IA a partir de la fotografía de la marca — requiere aprobación antes de publicar" :
+      j.imagen.origen === "banco_bajo_umbral" ? "la más cercana del banco, sin llegar al mínimo de similitud — revisar" : "sin fotografía"
+    }${j.imagen.aviso ? " · " + esc(j.imagen.aviso) : ""}</div>` : "";
+  d.innerHTML = `<h3>${esc(j.resumen || "Piezas listas")}</h3><div class="tira">` +
+    (j.piezas || []).map(p => `<figure><a href="${p.url}" target="_blank" download><img src="${p.url}" alt="${esc(p.nombre)}"></a><figcaption><b>${esc(p.nombre)}</b>${p.ancho} × ${p.alto} px</figcaption></figure>`).join("") +
+    `</div>${qa ? `<ul>${qa}</ul>` : ""}${im}`;
+  hilo.appendChild(d); d.scrollIntoView({block:"end"});
+}
+
+document.getElementById("form").onsubmit = e => { e.preventDefault(); const m = txt.value.trim(); if(m || adjunto) enviar(m); };
+txt.addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); document.getElementById("form").requestSubmit(); } });
+txt.addEventListener("input", () => { txt.style.height = ""; txt.style.height = Math.min(160, txt.scrollHeight) + "px"; });
+document.querySelectorAll(".ej").forEach(b => b.onclick = () => enviar(b.textContent));
+</script>
+</body>
+</html>

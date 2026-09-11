@@ -1,0 +1,23 @@
+{
+  "name": "consola-diseno-orquestador",
+  "version": "1.0.0",
+  "description": "Orquestador: recibe solicitudes del agente cerebro, resuelve fotografía, renderiza con el motor v6 y devuelve las piezas.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "instalar-navegador": "npx playwright install chromium",
+    "ingestar": "node ingestar.js",
+    "probar": "node probar.js"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "express": "^4.21.2",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "jszip": "^3.10.1",
+    "playwright": "^1.50.0"
+  }
+}

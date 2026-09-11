@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "solicitud-pieza.v1",
+  "title": "Solicitud de pieza gráfica",
+  "description": "Contrato entre el agente cerebro y la consola de diseño. Todo lo que el cerebro necesita entregar para que la pieza se produzca sin intervención humana.",
+  "type": "object",
+  "required": [
+    "empresa",
+    "plantilla",
+    "contenido"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "empresa": {
+      "type": "string",
+      "description": "Clave de la empresa o marca. Determina el kit de marca, la carpeta de plantillas y el banco de imágenes. Ej: coomeva_recreacion",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "plantilla": {
+      "type": "string",
+      "description": "Clave semántica del arquetipo de comunicación (no un ID de archivo). Ej: post_promo, evento, aviso_legal",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "formatos": {
+      "type": "array",
+      "description": "Ids de formato de la plantilla a producir. Si se omite, se producen todos.",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "contenido": {
+      "type": "object",
+      "description": "Textos por campo. Las claves deben coincidir con los campos de la plantilla (titular, subtitular, cta, legal, o los que la plantilla defina).",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "por_formato": {
+      "type": "object",
+      "description": "Textos que aplican solo a un formato. Clave: id de formato → objeto campo→texto.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "imagen": {
+      "type": "object",
+      "description": "Cómo obtener la fotografía principal.",
+      "additionalProperties": false,
+      "properties": {
+        "descripcion": {
+          "type": "string",
+          "description": "Descripción visual en español de lo que debe mostrar la foto: sujeto, acción, lugar, luz, emoción. Se usa para buscar en el banco y, si aplica, para generar.",
+          "maxLength": 800
+        },
+        "politica": {
+          "type": "string",
+          "enum": [
+            "solo_banco",
+            "banco_luego_generar",
+            "solo_generar",
+            "ninguna"
+          ],
+          "default": "banco_luego_generar",
+          "description": "solo_banco: nunca generar. banco_luego_generar: buscar; si nada supera el umbral, generar anclado a la fotografía de marca. solo_generar: no buscar. ninguna: pieza sin foto."
+        },
+        "asset_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Id de una foto concreta: del banco de la empresa (img_…) o adjuntada por la persona en el chat o la bandeja (sub_…). Tiene prioridad sobre la descripción."
+        },
+        "evitar": {
+          "type": "string",
+          "description": "Lo que no debe aparecer (texto, logos ajenos, menores sin autorización, etc.)."
+        },
+        "por_formato": {
+          "type": "object",
+          "description": "Descripción o asset_id distinto para un formato concreto.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "descripcion": {
+                "type": "string"
+              },
+              "asset_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "salida": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "formato": {
+          "type": "string",
+          "enum": [
+            "png",
+            "jpg"
+          ],
+          "default": "png"
+        },
+        "escala": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 3,
+          "default": 2
+        }
+      }
+    },
+    "callback_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "URL a la que se hace POST con el resultado al terminar. Opcional; el cerebro también puede consultar GET /solicitudes/{id}."
+    },
+    "solicitante": {
+      "type": "object",
+      "properties": {
+        "nombre": {
+          "type": "string"
+        },
+        "correo": {
+          "type": "string"
+        },
+        "canal": {
+          "type": "string",
+          "description": "gpt | web | slack | api"
+        }
+      }
+    },
+    "notas": {
+      "type": "string",
+      "description": "Contexto libre del cerebro para el diseñador que revise la pieza."
+    }
+  }
+}

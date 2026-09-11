@@ -1,0 +1,127 @@
+{
+  "empresa": "ejemplo",
+  "activos": [
+    {
+      "id": "img_mtncuwjz9b1oq",
+      "archivo": "fotos/familia-hotel-vacaciones-playa-descanso.jpg",
+      "descripcion": "familia hotel vacaciones playa descanso",
+      "etiquetas": [
+        "familia",
+        "hotel",
+        "vacacion",
+        "playa",
+        "descanso"
+      ],
+      "origen": "propia",
+      "uso": "aprobado",
+      "creado": "2026-09-04T19:36:57.167Z"
+    },
+    {
+      "id": "img_mtncuwk24kymn",
+      "archivo": "fotos/familia-piscina-verano-luz-natural-alegria.jpg",
+      "descripcion": "familia piscina verano luz natural alegria",
+      "etiquetas": [
+        "familia",
+        "piscina",
+        "verano",
+        "luz",
+        "natural",
+        "alegria"
+      ],
+      "origen": "propia",
+      "uso": "aprobado",
+      "creado": "2026-09-04T19:36:57.170Z"
+    },
+    {
+      "id": "img_mtncuwk2351rj",
+      "archivo": "fotos/grupo-amigos-restaurante-cena-celebracion.jpg",
+      "descripcion": "grupo amigos restaurante cena celebracion",
+      "etiquetas": [
+        "grupo",
+        "amigo",
+        "restaurante",
+        "cena",
+        "celebracion"
+      ],
+      "origen": "propia",
+      "uso": "aprobado",
+      "creado": "2026-09-04T19:36:57.170Z"
+    },
+    {
+      "id": "img_mtncuwk3o2ghu",
+      "archivo": "fotos/hombre-gimnasio-ejercicio-pesas-energia.jpg",
+      "descripcion": "hombre gimnasio ejercicio pesas energia",
+      "etiquetas": [
+        "hombre",
+        "gimnasio",
+        "ejercicio",
+        "pesa",
+        "energia"
+      ],
+      "origen": "propia",
+      "uso": "aprobado",
+      "creado": "2026-09-04T19:36:57.171Z"
+    },
+    {
+      "id": "img_mtncuwk4sr3px",
+      "archivo": "fotos/medico-consultorio-paciente-atencion-salud.jpg",
+      "descripcion": "medico consultorio paciente atencion salud",
+      "etiquetas": [
+        "medico",
+        "consultorio",
+        "paciente",
+        "atencion",
+        "salud"
+      ],
+      "origen": "propia",
+      "uso": "aprobado",
+      "creado": "2026-09-04T19:36:57.172Z"
+    },
+    {
+      "id": "img_mtncuwk45qkzm",
+      "archivo": "fotos/mujer-oficina-computador-sonrisa-trabajo.jpg",
+      "descripcion": "mujer oficina computador sonrisa trabajo",
+      "etiquetas": [
+        "mujer",
+        "oficina",
+        "computador",
+        "sonrisa",
+        "trabajo"
+      ],
+      "origen": "propia",
+      "uso": "aprobado",
+      "creado": "2026-09-04T19:36:57.172Z"
+    },
+    {
+      "id": "img_mtncuwk5ptkef",
+      "archivo": "fotos/ninos-jugando-cancha-futbol-dia-soleado.jpg",
+      "descripcion": "ninos jugando cancha futbol dia soleado",
+      "etiquetas": [
+        "nino",
+        "jugando",
+        "cancha",
+        "futbol",
+        "dia",
+        "soleado"
+      ],
+      "origen": "propia",
+      "uso": "aprobado",
+      "creado": "2026-09-04T19:36:57.173Z"
+    },
+    {
+      "id": "img_mtncuwk56ybc8",
+      "archivo": "fotos/pareja-mayores-caminando-parque-atardecer.jpg",
+      "descripcion": "pareja mayores caminando parque atardecer",
+      "etiquetas": [
+        "pareja",
+        "mayor",
+        "caminando",
+        "parque",
+        "atardecer"
+      ],
+      "origen": "propia",
+      "uso": "aprobado",
+      "creado": "2026-09-04T19:36:57.173Z"
+    }
+  ]
+}
